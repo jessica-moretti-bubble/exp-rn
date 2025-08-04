@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "533875099040",
+    "project_id": "rn-exp",
+    "storage_bucket": "rn-exp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:533875099040:android:513fd5a6a8803be711d0c5",
+        "android_client_info": {
+          "package_name": "com.nevromantik.exprn"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0aPKcqiFOVeAKtNMeNpZHasH_drv4_1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
