@@ -17,7 +17,7 @@ export default function LoginPage() {
   const router = useRouter();
 
 
-  const { mutateAsync, isError, error } = useLogin();
+  const { mutateAsync, isPending, isError, error } = useLogin();
 
   const handleLogin = async (data: { handle: string; password: string }) => {
     await mutateAsync(data);
@@ -73,12 +73,13 @@ export default function LoginPage() {
           maxWidth: 88,
           marginBottom: 16,
         }}
+        isLoading={isPending}
       />
 
       <Text style={styles.footerText}>
         Non hai un account?
         <Text style={styles.registerText} onPress={handleRegisterPress}>
-          Registrati
+          {" "} Registrati
         </Text>
       </Text>
 

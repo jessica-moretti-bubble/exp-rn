@@ -9,8 +9,13 @@ import {
   View,
   ViewStyle,
 } from "react-native";
+import { ButtonLoader } from "../loader/button-loader";
 
-type ButtonVariant = "primary" | "primary-outline" | "primary-shadow";
+export type ButtonVariant =
+  | "primary"
+  | "primary-outline"
+  | "primary-shadow"
+  | "secondary";
 
 interface ButtonProps {
   label?: string;
@@ -22,6 +27,7 @@ interface ButtonProps {
   iconOnly?: boolean;
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
+  isLoading?: boolean;
 }
 
 export const GenericButton = ({
@@ -34,6 +40,7 @@ export const GenericButton = ({
   iconOnly = false,
   style,
   labelStyle,
+  isLoading,
 }: ButtonProps) => {
   const variantStyle = getVariantStyles(variant, disabled);
 
@@ -49,13 +56,19 @@ export const GenericButton = ({
       ]}
       activeOpacity={0.8}
     >
-      {iconLeft && <View style={styles.icon}>{iconLeft}</View>}
-      {!iconOnly && label && (
-        <Text style={[styles.labelBase, variantStyle.label, labelStyle]}>
-          {label}
-        </Text>
+      {isLoading ? (
+        <ButtonLoader type={variant} />
+      ) : (
+        <>
+          {iconLeft && <View style={styles.icon}>{iconLeft}</View>}
+          {!iconOnly && label && (
+            <Text style={[styles.labelBase, variantStyle.label, labelStyle]}>
+              {label}
+            </Text>
+          )}
+          {iconRight && <View style={styles.icon}>{iconRight}</View>}
+        </>
       )}
-      {iconRight && <View style={styles.icon}>{iconRight}</View>}
     </TouchableOpacity>
   );
 };

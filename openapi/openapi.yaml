@@ -1,0 +1,4271 @@
+openapi: 3.0.3
+info:
+    description: Bubble API
+    version: 5.5.8
+    title: Bubble API
+    contact:
+        email: info@quinck.io
+    license:
+        name: Apache 2.0
+        url: http://www.apache.org/licenses/LICENSE-2.0.html
+tags:
+    - name: Auth
+      description: Authentication and authorization operations including login, signup, token refreshing, and password management
+    - name: Backoffice
+      description: Administrative operations for system management, content moderation, and user administration
+    - name: Competitions
+      description: Operations for managing competitions, leaderboards, bands, and reward distribution
+    - name: Jukebox
+      description: Operations for the Jukebox feature allowing users to spin for random cards and resources
+    - name: Marketplace
+      description: Operations for buying, selling, and trading cards, equipment, vinyls, and other in-game resources
+    - name: Notifications
+      description: Operations for handling in-app notifications, alerts, and user communication
+    - name: Payments
+      description: Operations for handling payment methods, transactions, and financial operations
+    - name: Profile
+      description: Operations for managing user profiles, preferences, and personal information
+    - name: Rewards
+      description: Operations for claiming various rewards
+    - name: Users
+      description: User management operations including searching, viewing user details, and leaderboard operations
+    - name: Wallet
+      description: Operations for managing user wallets, balances, and transaction history
+    - name: Webhooks
+      description: External service webhook handlers for Stripe and other third-party integrations
+paths:
+    /auth/login:
+        post:
+            tags:
+                - Auth
+            summary: Login a user with email and password
+            description: Login
+            operationId: authLogin
+            security: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserLogin"
+            responses:
+                "200":
+                    description: Login
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserLoginResponse"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /auth/login/refresh:
+        post:
+            tags:
+                - Auth
+            summary: Refresh a user token
+            description: Login refresh
+            operationId: authLoginRefresh
+            security: []
+            parameters:
+                - $ref: "#/components/parameters/refreshToken"
+            responses:
+                "200":
+                    description: Login refresh
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserLoginResponse"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "403":
+                    $ref: "#/components/responses/Unauthorized"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /auth/signup:
+        post:
+            tags:
+                - Auth
+            summary: Signup a user
+            description: Signup
+            operationId: authSignup
+            security: []
+            requestBody:
+                description: Signup
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SignupInfo"
+            responses:
+                "204":
+                    description: Signup
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /auth/signup/confirmation:
+        post:
+            tags:
+                - Auth
+            summary: Confirm user signup via email OTP
+            description: Signup confirmation
+            operationId: authSignupConfirmation
+            security: []
+            requestBody:
+                description: Signup confirmation
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserSignupConfirmation"
+            responses:
+                "204":
+                    description: Signup confirmation
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /auth/signup/confirmation/retry:
+        post:
+            tags:
+                - Auth
+            summary: Resend user signup OTP
+            description: Signup confirmation resend
+            operationId: authSignupConfirmationResend
+            security: []
+            requestBody:
+                description: Signup confirmation resend
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - email
+                            properties:
+                                email:
+                                    type: string
+            responses:
+                "204":
+                    description: Signup confirmation resend
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /auth/password/forgot:
+        post:
+            tags:
+                - Auth
+            summary: Send reset password email
+            description: Forgot password
+            operationId: authForgot
+            security: []
+            requestBody:
+                description: Forgot password
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - email
+                            properties:
+                                email:
+                                    type: string
+            responses:
+                "204":
+                    description: Email sent
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /auth/password/forgot/retry:
+        post:
+            tags:
+                - Auth
+            summary: Resend reset password email
+            description: Forgot password resend
+            operationId: authForgotResend
+            security: []
+            requestBody:
+                description: Forgot password resend
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - email
+                            properties:
+                                email:
+                                    type: string
+            responses:
+                "204":
+                    description: Forgot password resend
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /auth/password/reset:
+        post:
+            tags:
+                - Auth
+            summary: Reset user password
+            description: Reset password
+            operationId: authReset
+            security: []
+            requestBody:
+                description: Reset password
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserPasswordReset"
+            responses:
+                "204":
+                    description: Password reset
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    # /onfido/token:
+    #     post:
+    #         tags:
+    #             - Onfido
+    #         summary: Get Onfido SDK token
+    #         description: Get Onfido SDK token
+    #         operationId: getOnfidoSdkToken
+    #         security:
+    #             - userAuth: []
+    #         requestBody:
+    #             description: Get Onfido SDK token
+    #             required: true
+    #             content:
+    #                 application/json:
+    #                     schema:
+    #                         $ref: "#/components/schemas/OnfidoApplicantInfo"
+    #         responses:
+    #             "200":
+    #                 description: Get Onfido SDK token
+    #                 content:
+    #                     application/json:
+    #                         schema:
+    #                             $ref: "#/components/schemas/OnfidoToken"
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+    # /onfido/verification:
+    #     post:
+    #         tags:
+    #             - Onfido
+    #         summary: Verify user with Onfido
+    #         description: Verify user with Onfido
+    #         operationId: verifyUserWithOnfido
+    #         security:
+    #             - userAuth: []
+    #         requestBody:
+    #             description: The onfido webhook event
+    #             required: true
+    #             content:
+    #                 application/json:
+    #                     schema:
+    #                         $ref: "#/components/schemas/OnfidoEventPayload"
+    #         responses:
+    #             "204":
+    #                 description: User's identity verified with Onfido
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+    # /onfido/check:
+    #     post:
+    #         tags:
+    #             - Onfido
+    #         summary: Creates a new Onfido check
+    #         description: Creates a new Onfido check
+    #         operationId: createNewOnfidoCheck
+    #         security:
+    #             - userAuth: []
+    #         responses:
+    #             "200":
+    #                 description: Onfido check created
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+
+    /profile:
+        get:
+            tags:
+                - Profile
+            summary: Get current user profile
+            description: Get current user profile
+            operationId: getUserProfile
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: Get user profile
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserInfo"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        patch:
+            tags:
+                - Profile
+            summary: Update current user profile
+            description: Update current user profile
+            operationId: updateUserProfile
+            security:
+                - userAuth: []
+            requestBody:
+                description: Update user profile
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateProfileInfo"
+            responses:
+                "200":
+                    description: Update user profile
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserInfo"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        delete:
+            tags:
+                - Profile
+            summary: Delete user profile and data
+            description: Deletes the user profile and all it's data
+            operationId: deleteUserProfile
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: User profile and data deleted
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /profile/username/availability:
+        get:
+            tags:
+                - Profile
+            summary: Check username availability
+            description: Check username availability
+            operationId: checkUsernameAvailability
+            security: []
+            parameters:
+                - $ref: "#/components/parameters/username"
+            responses:
+                "200":
+                    description: Check username availability
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ProfilePropertyAvailability"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /profile/email/availability:
+        get:
+            tags:
+                - Profile
+            summary: Check email availability
+            description: Check email availability
+            operationId: checkEmailAvailability
+            security: []
+            parameters:
+                - $ref: "#/components/parameters/email"
+            responses:
+                "200":
+                    description: Check email availability
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ProfilePropertyAvailability"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /users:
+        get:
+            tags:
+                - Users
+            summary: Search all users
+            operationId: getUsers
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+                - $ref: "#/components/parameters/search"
+                - $ref: "#/components/parameters/userRolesFilter"
+            responses:
+                "200":
+                    description: Get users
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedUsers"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /users/gifts:
+        post:
+            tags:
+                - Backoffice
+            summary: Gift resources to users
+            operationId: giftResources
+            security:
+                - userAuth: []
+            requestBody:
+                description: Gift resources
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/NewGift"
+            responses:
+                "204":
+                    description: Resources gifted
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /users/{userId}:
+        get:
+            tags:
+                - Users
+            summary: Get user detail
+            operationId: getUserDetails
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/userId"
+            responses:
+                "200":
+                    description: Get user
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserInfo"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        patch:
+            tags:
+                - Backoffice
+            summary: Update user
+            operationId: updateUser
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/userId"
+            requestBody:
+                description: Update user
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateUserInfo"
+            responses:
+                "204":
+                    description: User updated
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /users/leaderboard:
+        get:
+            tags:
+                - Users
+            summary: Get users leaderboard
+            operationId: getUsersLeaderboard
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+            responses:
+                "200":
+                    description: Get users leaderboard
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedUserLeaderboard"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+
+    /artists:
+        get:
+            tags:
+                - Backoffice
+            summary: Get all artists and the rarities they have
+            operationId: getArtists
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+            responses:
+                "200":
+                    description: Get artists
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedArtistsRarities"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        patch:
+            tags:
+                - Backoffice
+            summary: Update artist
+            operationId: updateArtist
+            security:
+                - userAuth: []
+            requestBody:
+                description: Update artist
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - artistsRarities
+                            properties:
+                                artistsRarities:
+                                    type: array
+                                    items:
+                                        $ref: "#/components/schemas/MaxArtistRarity"
+            responses:
+                "204":
+                    description: Artist updated
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+
+    /profile/resources/cards:
+        get:
+            tags:
+                - Profile
+            summary: Get player cards resources
+            operationId: getPlayerCardsResources
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+            responses:
+                "200":
+                    description: Get player cards resources
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedPlayerCardsResources"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /profile/resources/cards/{cardId}:
+        get:
+            tags:
+                - Profile
+            summary: Get player card resource
+            operationId: getCardDetails
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/cardId"
+            responses:
+                "200":
+                    description: Get player card resource
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/CardInstance"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /profile/resources/cards/{cardId}/equipment:
+        put:
+            tags:
+                - Profile
+            summary: Equip a card
+            operationId: addCardEquipment
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/cardId"
+            requestBody:
+                description: Equip a card
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - equipment
+                            properties:
+                                equipment:
+                                    type: array
+                                    items:
+                                        $ref: "#/components/schemas/EquipmentType"
+            responses:
+                "204":
+                    description: Card equipped
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /profile/resources/cards/{cardId}/stickers:
+        post:
+            tags:
+                - Profile
+            summary: Add stickers to a card, increasing the level
+            operationId: addCardStickers
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/cardId"
+            responses:
+                "204":
+                    description: Card leveled up
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /profile/resources/equipment:
+        get:
+            tags:
+                - Profile
+            summary: Get player equipment resources
+            operationId: getPlayerEquipmentResources
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: Get player equipment resources
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PlayerEquipmentResources"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /profile/resources/vinyls:
+        get:
+            tags:
+                - Profile
+            summary: Get player vinyls resources
+            operationId: getPlayerVinylResources
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: Get player vinyls resources
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PlayerVinylResources"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /profile/resources/stickers:
+        get:
+            tags:
+                - Profile
+            summary: Get player stickers resources
+            operationId: getPlayerStickerResources
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: Get player stickers resources
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PlayerStickerResources"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /profile/resources/history:
+        get:
+            tags:
+                - Profile
+            summary: Get history of user's resources
+            operationId: getResourcesHistory
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+                - $ref: "#/components/parameters/timeRangeFilter"
+                - $ref: "#/components/parameters/sources"
+                - $ref: "#/components/parameters/resourceTypes"
+            responses:
+                "200":
+                    description: Get history of user's resources
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedResourceHistory"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /competitions:
+        get:
+            tags:
+                - Competitions
+            summary: Search all competitions
+            operationId: getCompetitions
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+                - $ref: "#/components/parameters/competitionStatusFilter"
+            responses:
+                "200":
+                    description: Get competitions
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedCompetitions"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        post:
+            tags:
+                - Backoffice
+            summary: Create a competition
+            operationId: createCompetition
+            security:
+                - userAuth: []
+            requestBody:
+                description: Create competition
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/NewCompetition"
+            responses:
+                "204":
+                    description: Competition created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Competition"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /competitions/{competitionId}:
+        get:
+            tags:
+                - Competitions
+            summary: Get competition detail
+            operationId: getCompetitionDetails
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/competitionId"
+            responses:
+                "200":
+                    description: Get competition
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/CompetitionDetails"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        put:
+            tags:
+                - Backoffice
+            summary: Update competition
+            operationId: updateCompetition
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/competitionId"
+            requestBody:
+                description: Update competition
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateCompetition"
+            responses:
+                "204":
+                    description: Competition updated
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        delete:
+            tags:
+                - Backoffice
+            summary: Delete competition
+            operationId: deleteCompetition
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/competitionId"
+            responses:
+                "204":
+                    description: Competition deleted
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+
+    /competitions/{competitionId}/cards/{cardId}/scores:
+        get:
+            tags:
+                - Competitions
+            summary: Get artist score inside a single competition
+            operationId: getCompetitionArtistScore
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/competitionId"
+                - $ref: "#/components/parameters/cardId"
+            responses:
+                "200":
+                    description: Get competition
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/CompetitionArtistScore"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /competitions/{competitionId}/leaderboard/users:
+        get:
+            tags:
+                - Competitions
+            summary: Get competition leaderboard
+            operationId: getCompetitionLeaderboard
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/competitionId"
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+            responses:
+                "200":
+                    description: Get competition leaderboard
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedUserLeaderboard"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /competitions/{competitionId}/leaderboard/users/{userId}:
+        get:
+            tags:
+                - Competitions
+            summary: Get user's competition band
+            operationId: getUserBand
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/competitionId"
+                - $ref: "#/components/parameters/userId"
+            responses:
+                "200":
+                    description: Get user's competition band
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                required:
+                                    - band
+                                properties:
+                                    band:
+                                        $ref: "#/components/schemas/CompetitionBand"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /competitions/{competitionId}/leaderboard/artists:
+        get:
+            tags:
+                - Competitions
+            summary: Get competition leaderboard by artists
+            operationId: getCompetitionArtistsLeaderboard
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/competitionId"
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+            responses:
+                "200":
+                    description: Get competition leaderboard by artists
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedArtistLeaderboard"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /competitions/{competitionId}/rewards:
+        post:
+            tags:
+                - Competitions
+            summary: Claim competition rewards
+            operationId: claimCompetitionRewards
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/competitionId"
+            responses:
+                "200":
+                    description: Get competition rewards
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ClaimedCompetitionRewards"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /competitions/{competitionId}/participation:
+        post:
+            tags:
+                - Competitions
+            summary: Join a competition
+            operationId: joinCompetition
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/competitionId"
+            requestBody:
+                description: Join competition
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/CompetitionBandIds"
+            responses:
+                "204":
+                    description: Competition joined
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+
+    /jukebox/spin:
+        post:
+            tags:
+                - Jukebox
+            summary: Spin the jukebox
+            operationId: spinJukebox
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/JukeboxSpin"
+            security:
+                - userAuth: []
+            responses:
+                "204":
+                    description: Jukebox spinned
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PlayerCardsResources"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+
+    /notifications:
+        get:
+            tags:
+                - Notifications
+            summary: Get user notifications
+            operationId: getUserNotifications
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: Get user notifications
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Notification"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /notifications/{notificationId}:
+        delete:
+            tags:
+                - Notifications
+            summary: Removes a notification
+            operationId: deleteNotification
+            parameters:
+                - $ref: "#/components/parameters/notificationId"
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: Notification removed
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+
+    # /marketplace/users/cards/sales:
+    #     get:
+    #         tags:
+    #             - Marketplace
+    #         summary: Search all cards
+    #         operationId: getUsersCardSales
+    #         security:
+    #             - userAuth: []
+    #         parameters:
+    #             - $ref: "#/components/parameters/offset"
+    #             - $ref: "#/components/parameters/limit"
+    #             - $ref: "#/components/parameters/search"
+    #             - $ref: "#/components/parameters/cardRarities"
+    #             - $ref: "#/components/parameters/cardSort"
+    #             - $ref: "#/components/parameters/maxPrice"
+    #             - $ref: "#/components/parameters/minPrice"
+    #             - $ref: "#/components/parameters/cardGenres"
+    #         responses:
+    #             "200":
+    #                 description: Get cards
+    #                 content:
+    #                     application/json:
+    #                         schema:
+    #                             $ref: "#/components/schemas/PaginatedMarketplaceCardSales"
+    #             "400":
+    #                 $ref: "#/components/responses/BadRequest"
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+    #     post:
+    #         tags:
+    #             - Marketplace
+    #         summary: Sell a card
+    #         operationId: createUserCardSale
+    #         security:
+    #             - userAuth: []
+    #         requestBody:
+    #             description: Sell a card
+    #             required: true
+    #             content:
+    #                 application/json:
+    #                     schema:
+    #                         $ref: "#/components/schemas/NewMarketplaceCardSale"
+    #         responses:
+    #             "204":
+    #                 description: Card sold
+    #                 content:
+    #                     application/json:
+    #                         schema:
+    #                             $ref: "#/components/schemas/MarketplaceCardSale"
+    #             "400":
+    #                 $ref: "#/components/responses/BadRequest"
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+    # /marketplace/users/cards/sales/{cardSaleId}:
+    #     get:
+    #         tags:
+    #             - Marketplace
+    #         summary: Get card sale detail
+    #         operationId: getUserCardSaleDetails
+    #         security:
+    #             - userAuth: []
+    #         parameters:
+    #             - $ref: "#/components/parameters/cardSaleId"
+    #         responses:
+    #             "200":
+    #                 description: Get card sale
+    #                 content:
+    #                     application/json:
+    #                         schema:
+    #                             $ref: "#/components/schemas/MarketplaceCardSale"
+    #             "400":
+    #                 $ref: "#/components/responses/BadRequest"
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+    #     patch:
+    #         tags:
+    #             - Marketplace
+    #         summary: Update card sale
+    #         operationId: updateUserCardSale
+    #         security:
+    #             - userAuth: []
+    #         parameters:
+    #             - $ref: "#/components/parameters/cardSaleId"
+    #         requestBody:
+    #             description: Update card sale
+    #             required: true
+    #             content:
+    #                 application/json:
+    #                     schema:
+    #                         $ref: "#/components/schemas/UpdateMarketplaceCardSale"
+    #         responses:
+    #             "204":
+    #                 description: Card sale updated
+    #             "400":
+    #                 $ref: "#/components/responses/BadRequest"
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+    #     delete:
+    #         tags:
+    #             - Marketplace
+    #         summary: Delete card sale
+    #         operationId: deleteUserCardSale
+    #         security:
+    #             - userAuth: []
+    #         parameters:
+    #             - $ref: "#/components/parameters/cardSaleId"
+    #         responses:
+    #             "204":
+    #                 description: Card sale deleted
+    #             "400":
+    #                 $ref: "#/components/responses/BadRequest"
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+    # /marketplace/users/cards/sales/{cardSaleId}/favorite:
+    #     post:
+    #         tags:
+    #             - Marketplace
+    #         summary: Add card sale to favorites
+    #         operationId: addCardSaleToFavorites
+    #         security:
+    #             - userAuth: []
+    #         parameters:
+    #             - $ref: "#/components/parameters/cardSaleId"
+    #         responses:
+    #             "204":
+    #                 description: Card sale added to favorites
+    #             "400":
+    #                 $ref: "#/components/responses/BadRequest"
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+    #     delete:
+    #         tags:
+    #             - Marketplace
+    #         summary: Remove card sale from favorites
+    #         operationId: removeCardSaleFromFavorites
+    #         security:
+    #             - userAuth: []
+    #         parameters:
+    #             - $ref: "#/components/parameters/cardSaleId"
+    #         responses:
+    #             "204":
+    #                 description: Card sale removed from favorites
+    #             "400":
+    #                 $ref: "#/components/responses/BadRequest"
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+    # /marketplace/users/cards/sales/favorites:
+    #     get:
+    #         tags:
+    #             - Marketplace
+    #         summary: Get favorite card sales
+    #         operationId: getFavoriteCardSales
+    #         security:
+    #             - userAuth: []
+    #         parameters:
+    #             - $ref: "#/components/parameters/offset"
+    #             - $ref: "#/components/parameters/limit"
+    #         responses:
+    #             "200":
+    #                 description: Get favorite card sales
+    #                 content:
+    #                     application/json:
+    #                         schema:
+    #                             $ref: "#/components/schemas/PaginatedMarketplaceFavorites"
+    #             "400":
+    #                 $ref: "#/components/responses/BadRequest"
+    #             "401":
+    #                 $ref: "#/components/responses/Unauthenticated"
+    #             "500":
+    #                 $ref: "#/components/responses/InternalServerError"
+
+    /marketplace/bubble/equipment:
+        get:
+            tags:
+                - Marketplace
+            summary: Search all equipment
+            operationId: getBubbleEquipmentSales
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: Get equipment
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MarketplaceEquipment"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /marketplace/bubble/equipment/{equipmentTypePath}/purchase:
+        post:
+            tags:
+                - Marketplace
+            summary: Purchase an equipment
+            operationId: purchaseBubbleEquipment
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/equipmentTypePath"
+            responses:
+                "204":
+                    description: Equipment purchased
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /marketplace/bubble/vinyls:
+        get:
+            tags:
+                - Marketplace
+            summary: Search all vinyls
+            operationId: getBubbleVinylSales
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: Get vinyls
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MarketplaceVinyls"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /marketplace/bubble/vinyls/{vinylRarityPath}/purchase:
+        post:
+            tags:
+                - Marketplace
+            summary: Purchase a vinyl
+            operationId: purchaseBubbleVinyl
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/vinylRarityPath"
+            responses:
+                "204":
+                    description: Vinyl bought
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /marketplace/bubble/cards/sales:
+        get:
+            tags:
+                - Marketplace
+            summary: Search all cards
+            operationId: getBubbleCardSales
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+                - $ref: "#/components/parameters/search"
+                - $ref: "#/components/parameters/cardRarities"
+                - $ref: "#/components/parameters/maxPrice"
+                - $ref: "#/components/parameters/minPrice"
+                - $ref: "#/components/parameters/cardGenres"
+            responses:
+                "200":
+                    description: Get cards
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedBubbleCardSales"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /marketplace/bubble/stickers:
+        get:
+            tags:
+                - Marketplace
+            summary: Search all stickers
+            operationId: getBubbleStickerSales
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: Get stickers
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MarketplaceStickers"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /marketplace/bubble/stickers/{stickerGenrePath}/purchase:
+        post:
+            tags:
+                - Marketplace
+            summary: Purchase a sticker
+            operationId: purchaseBubbleSticker
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/stickerGenrePath"
+            requestBody:
+                description: Purchase cubble
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/StickerPurchase"
+            responses:
+                "204":
+                    description: Sticker purchased
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /marketplace/bubble/cards/sales/{bubbleSaleId}:
+        post:
+            tags:
+                - Marketplace
+            summary: Purchase a card
+            operationId: purchaseBubbleCard
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/bubbleSaleId"
+            responses:
+                "204":
+                    description: Card purchased
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/CardInstance"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+
+    /wallet:
+        get:
+            tags:
+                - Wallet
+            summary: Get current user wallet
+            description: Get current user wallet
+            operationId: getWallet
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: User wallet
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Wallet"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /wallet/cubble/purchase:
+        post:
+            tags:
+                - Wallet
+            summary: Purchase cubble
+            operationId: cubblePurchase
+            security:
+                - userAuth: []
+            requestBody:
+                description: Purchase cubble
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/NewCubblePurchase"
+            responses:
+                "200":
+                    description: Cubble purchase created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/CubblePurchase"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /wallet/transactions:
+        get:
+            tags:
+                - Wallet
+            summary: Get current user wallet transactions
+            description: Get current user wallet transactions
+            operationId: getWalletTransactions
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+            responses:
+                "200":
+                    description: User wallet transactions
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedWalletTransactions"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /payments/methods:
+        post:
+            tags:
+                - Payments
+            summary: Add a new payment method to the current user
+            description: Add a new payment method to the current user
+            operationId: addPaymentMethod
+            security:
+                - userAuth: []
+            requestBody:
+                description: The payment method to add
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/NewPaymentMethod"
+            responses:
+                "201":
+                    description: The payment method has been added
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaymentMethod"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        get:
+            tags:
+                - Payments
+            summary: Get the current user payment methods
+            description: Get the current user payment methods
+            operationId: getPaymentMethods
+            security:
+                - userAuth: []
+            parameters:
+                - name: type
+                  in: query
+                  description: The type of payment method to filter by
+                  required: false
+                  schema:
+                      $ref: "#/components/schemas/PaymentMethodType"
+            responses:
+                "200":
+                    description: User payment methods
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/PaymentMethod"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /payments/methods/{paymentMethodId}:
+        delete:
+            tags:
+                - Payments
+            summary: Remove the payment method with the specified id
+            description: Remove the payment method with the specified id
+            operationId: deletePaymentMethod
+            security:
+                - userAuth: []
+            parameters:
+                - name: paymentMethodId
+                  in: path
+                  description: The id of the payment method to remove
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                "204":
+                    description: The payment method has been removed
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "404":
+                    $ref: "#/components/responses/NotFound"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /skyscraper/rewards:
+        get:
+            tags:
+                - Rewards
+            summary: Get all skyscraper rewards
+            description: Get all skyscraper rewards
+            operationId: getSkyscraperRewards
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: The skyscraper rewards
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/SkyscraperReward"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        post:
+            tags:
+                - Backoffice
+            summary: Create a skyscraper reward
+            description: Create a skyscraper reward
+            operationId: createSkyscraperReward
+            security:
+                - userAuth: []
+            requestBody:
+                description: The skyscraper reward to create
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/NewSkyscraperReward"
+            responses:
+                "201":
+                    description: The skyscraper reward has been created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/SkyscraperReward"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /skyscraper/rewards/{skyscraperRewardId}:
+        post:
+            tags:
+                - Rewards
+            summary: Claim a skyscraper reward
+            description: Claim a skyscraper reward
+            operationId: claimSkyscraperReward
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/skyscraperRewardId"
+            responses:
+                "204":
+                    description: The claimed rewards
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ClaimedSkyscraperReward"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        put:
+            tags:
+                - Backoffice
+            summary: Update a skyscraper reward
+            description: Update a skyscraper reward
+            operationId: updateSkyscraperReward
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/skyscraperRewardId"
+            requestBody:
+                description: The skyscraper reward to update
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateSkyscraperReward"
+            responses:
+                "204":
+                    description: The skyscraper reward has been updated
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        delete:
+            tags:
+                - Backoffice
+            summary: Delete a skyscraper reward
+            description: Delete a skyscraper reward
+            operationId: deleteSkyscraperReward
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/skyscraperRewardId"
+            responses:
+                "204":
+                    description: The skyscraper reward has been deleted
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+
+    /rewards/daily:
+        get:
+            tags:
+                - Rewards
+            summary: Get the daily claimable reward
+            description: Get the daily claimable reward
+            operationId: getDailyClaimableReward
+            security:
+                - userAuth: []
+            responses:
+                "200":
+                    description: The daily claimable reward
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DailyReward"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        post:
+            tags:
+                - Rewards
+            summary: Claim the daily reward
+            description: Claim the daily reward
+            operationId: claimDailyReward
+            security:
+                - userAuth: []
+            responses:
+                "201":
+                    description: The claimed daily reward
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/CardInstance"
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+
+    /support-tickets:
+        post:
+            tags:
+                - Users
+            summary: Create a support ticket
+            description: Creates a support ticket
+            operationId: createSupportTicket
+            security:
+                - userAuth: []
+            requestBody:
+                description: The ticket details
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/NewSupportTicket"
+            responses:
+                "201":
+                    description: The support ticket has been created
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+        get:
+            tags:
+                - Backoffice
+            summary: Get the support tickets
+            description: Get the support tickets sent by users
+            operationId: getSupportTickets
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/offset"
+                - $ref: "#/components/parameters/limit"
+                - $ref: "#/components/parameters/sortOrder"
+                - $ref: "#/components/parameters/supportTicketStatusFilter"
+            responses:
+                "200":
+                    description: User's support tickets
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedSupportTickets"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /support-tickets/{supportTicketId}:
+        patch:
+            tags:
+                - Backoffice
+            summary: Update a support ticket
+            description: Updates a support ticket
+            operationId: updateSupportTicket
+            security:
+                - userAuth: []
+            parameters:
+                - $ref: "#/components/parameters/supportTicketId"
+            requestBody:
+                description: The ticket status
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateSupportTicket"
+            responses:
+                "201":
+                    description: The support ticket has been created
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+
+    /webhooks/stripe:
+        post:
+            tags:
+                - Webhooks
+            summary: Stripe webhook
+            operationId: stripeWebhook
+            security: []
+            requestBody:
+                description: The stripe webhook event
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            additionalProperties: true
+            responses:
+                "204":
+                    description: The webhook event has been processed
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+    /artists/{artistId}:
+        patch:
+            tags:
+                - Backoffice
+            summary: Patch artist
+            operationId: patchArtist
+            security:
+                - userAuth: []
+            parameters:
+                - name: artistId
+                  in: path
+                  description: The id of the artist method to update
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                description: Update artist
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateArtist"
+            responses:
+                "204":
+                    description: Artist updated
+                "400":
+                    $ref: "#/components/responses/BadRequest"
+                "401":
+                    $ref: "#/components/responses/Unauthenticated"
+                "500":
+                    $ref: "#/components/responses/InternalServerError"
+components:
+    securitySchemes:
+        userAuth:
+            type: http
+            scheme: bearer
+    responses:
+        NotFound:
+            description: The specified resource was not found
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorData"
+        Unauthenticated:
+            description: You are not authenticated
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorData"
+        Unauthorized:
+            description: You are authenticated but not authorized
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorData"
+        BadRequest:
+            description: The provided data are not acceptable
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorData"
+        InternalServerError:
+            description: Internal Server Error
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ErrorData"
+        # Conflict:
+        #     description: The provided data are in conflict with stored data
+        #     content:
+        #         application/json:
+        #             schema:
+        #                 $ref: "#/components/schemas/ErrorData"
+    parameters:
+        offset:
+            name: offset
+            in: query
+            schema:
+                type: integer
+                minimum: 0
+                default: 0
+            required: true
+            description: The number of items to be skipped.
+        limit:
+            name: limit
+            in: query
+            schema:
+                type: integer
+                minimum: 1
+                default: 10
+            required: true
+            description: |
+                The number of items to return.
+
+                If not specified all the resulting 
+                items will be returned.
+        refreshToken:
+            name: refresh-token
+            in: header
+            description: The refresh token
+            required: true
+            schema:
+                type: string
+        username:
+            name: username
+            in: query
+            description: |
+                The username.
+            schema:
+                type: string
+            required: true
+        email:
+            name: email
+            in: query
+            description: |
+                The email.
+            schema:
+                type: string
+            required: true
+        search:
+            name: search
+            in: query
+            description: |
+                The search string.
+            schema:
+                type: string
+        cardRarities:
+            name: rarities
+            in: query
+            description: |
+                The rarities to filter the cards by. If more than one rarity is specified, they must be separated by a comma
+
+                If not specified all the resulting items will be returned.
+            schema:
+                type: string
+        timeRangeFilter:
+            name: timeRange
+            in: query
+            schema:
+                $ref: "#/components/schemas/TimeRange"
+        sources:
+            name: sources
+            in: query
+            description: |
+                The source types to filter by.
+                If not specified all sources will be returned.
+            schema:
+                type: array
+                items:
+                    $ref: "#/components/schemas/ResourceSourceType"
+            style: form
+            explode: false
+        resourceTypes:
+            name: resourceTypes
+            in: query
+            description: |
+                The resource types to filter by.
+                If not specified all resource types will be returned.
+            schema:
+                type: array
+                items:
+                    $ref: "#/components/schemas/ResourceType"
+            style: form
+            explode: false
+        maxPrice:
+            name: maxPrice
+            in: query
+            description: |
+                The maximum price.
+            schema:
+                type: number
+                minimum: 0
+        minPrice:
+            name: minPrice
+            in: query
+            description: |
+                The minimum price.
+            schema:
+                type: number
+                minimum: 0
+        cardGenres:
+            name: genres
+            in: query
+            description: |
+                The genres to filter the cards by. If more than one genre is specified, they must be separated by a comma.
+
+                If not specified all the resulting items will be returned.
+            schema:
+                type: string
+        userId:
+            name: userId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        competitionId:
+            name: competitionId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        skyscraperRewardId:
+            name: skyscraperRewardId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        supportTicketId:
+            name: supportTicketId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        supportTicketStatusFilter:
+            name: supportTicketStatusFilter
+            in: query
+            required: false
+            schema:
+                $ref: "#/components/schemas/SupportTicketStatus"
+        sortOrder:
+            name: sortOrder
+            in: query
+            required: false
+            schema:
+                type: string
+                enum:
+                    - ASC
+                    - DESC
+        cardId:
+            name: cardId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        equipmentTypePath:
+            name: equipmentTypePath
+            in: path
+            required: true
+            schema:
+                $ref: "#/components/schemas/EquipmentType"
+        vinylRarityPath:
+            name: vinylRarityPath
+            in: path
+            required: true
+            schema:
+                $ref: "#/components/schemas/VinylRarity"
+        stickerGenrePath:
+            name: stickerGenrePath
+            in: path
+            required: true
+            schema:
+                $ref: "#/components/schemas/Genre"
+        bubbleSaleId:
+            name: bubbleSaleId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        notificationId:
+            name: notificationId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        competitionStatusFilter:
+            name: competitionStatusFilter
+            in: query
+            description: |
+                The competition status to filter.
+            schema:
+                $ref: "#/components/schemas/CompetitionStatus"
+        userRolesFilter:
+            name: userRoles
+            in: query
+            description: |
+                The user roles to filter.
+
+                If not specified all the resulting items will be returned.
+                If more than one role is specified, they must be separated by a comma.
+            schema:
+                type: string
+    schemas:
+        ProblemDetails:
+            type: object
+            description: Problem Details
+            required:
+                - type
+                - title
+                - status
+                - detail
+            properties:
+                type:
+                    type: string
+                    description: A URI reference [RFC3986] that identifies the problem type.
+                title:
+                    type: string
+                    description: A short, human-readable summary of the problem type.
+                status:
+                    type: integer
+                    description: The HTTP status code ([RFC7231], Section 6) generated by the origin server for this occurrence of the problem.
+                    minimum: 0
+                detail:
+                    type: string
+                    description: A human-readable explanation specific to this occurrence of the problem.
+                instance:
+                    type: string
+                    description: A URI reference that identifies the specific occurrence of the problem.
+        ErrorData:
+            allOf:
+                - $ref: "#/components/schemas/ProblemDetails"
+                - type: object
+                  description: Informations regarding a backend error
+                  required:
+                      - title
+                  properties:
+                      title:
+                          $ref: "#/components/schemas/ErrorCode"
+                      validationErrors:
+                          type: array
+                          items:
+                              $ref: "#/components/schemas/ValidationError"
+        ValidationError:
+            allOf:
+                - type: object
+                  description: Informations regarding a validation error
+                  required:
+                      - field
+                      - message
+                  properties:
+                      field:
+                          type: string
+                          description: The field that caused the error
+                      message:
+                          type: string
+                          description: The error message
+                - type: object
+                  additionalProperties: true
+        ErrorCode:
+            type: string
+            enum:
+                # Generic errors
+                - GENERIC
+                - NOT_IMPLEMENTED
+                - VALIDATION
+                - BAD_REQUEST
+                - INTERNAL
+                - CONFLICT
+                # Auth errors
+                - UNAUTHORIZED_NOT_AUTHENTICATED
+                - FORBIDDEN_NOT_AUTHORIZED
+                - CREDENTIALS_NOT_VALID
+                - USER_NOT_FOUND
+                - USER_ALREADY_EXISTS
+                # Generic resources operation errors
+                - RESOURCE_NOT_CREATED
+                - RESOURCE_NOT_FOUND
+                - RESOURCE_NOT_UPDATED
+                - RESOURCE_NOT_DELETED
+                - RESOURCE_NOT_RETRIEVED
+                - RESOURCES_SEARCH_ERROR
+                # Application specific errors
+                - ARTIST_PROFILE_PICTURE_REQUIRED
+                - NOT_ENOUGH_VINYLS
+                - CARD_NOT_FOUND
+                - COMPETITION_NOT_FOUND
+                - CARD_SALE_NOT_FOUND
+                - INSUFFICIENT_FUNDS
+                - USER_NOT_IN_EVENT
+                - USER_ALREADY_IN_EVENT
+                - USER_CANNOT_CLAIM_REWARDS
+                - REQUIREMENTS_NOT_MET
+                - USER_IS_NOT_BACKOFFICE
+                - NOT_ENOUGH_EQUIPMENT_SLOTS
+                - CARD_ALREADY_OWNED
+                - INVALID_COMPETITION_DURATION
+                - INVALID_REFERRAL_CODE
+                - DAILY_REWARD_NOT_AVAILABLE
+                - COMPETITION_NOT_STARTED
+        Timestamp:
+            type: integer
+            format: int64
+            description: The Unix timestamp in seconds
+            example: 1731752377
+        TimeRange:
+            type: string
+            enum:
+                - WEEK
+                - MONTH
+        DateTime:
+            type: string
+            format: date-time
+            description: The date and time in ISO 8601 format
+            # example: "2024-11-16T11:19:37+01:00"
+
+        # Users
+        UserRole:
+            type: string
+            enum:
+                - ADMIN
+                - BACKOFFICE
+                - CONFIRMED_ARTIST
+                - UNCONFIRMED_ARTIST
+                - USER
+                - BOT
+        Password:
+            type: string
+            format: password
+            minLength: 8
+            pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\W)(?!.*\\s).{8,}$"
+        UserLogin:
+            type: object
+            description: User login
+            required:
+                - handle
+                - password
+            properties:
+                handle:
+                    type: string
+                password:
+                    $ref: "#/components/schemas/Password"
+        UserLoginResponse:
+            type: object
+            description: User login response
+            required:
+                - idToken
+                - accessToken
+                - refreshToken
+                - isFirstLogin
+            properties:
+                idToken:
+                    type: string
+                    description: The user token
+                accessToken:
+                    type: string
+                    description: The user access token
+                refreshToken:
+                    type: string
+                    description: The user refresh token
+                isFirstLogin:
+                    type: boolean
+        ArtistSignupInfo:
+            type: object
+            required:
+                - genre
+                - spotifyAccessToken
+                - birthRegion
+                - zodiacSign
+                - genderIdentity
+            properties:
+                artistHeadshot:
+                    type: string
+                    description: A headshot or portrait of the artist.
+                genre:
+                    allOf:
+                        - $ref: "#/components/schemas/Genre"
+                spotifyAccessToken:
+                    type: string
+                    description: The Spotify access token.
+                birthRegion:
+                    allOf:
+                        - $ref: "#/components/schemas/BirthRegion"
+                zodiacSign:
+                    allOf:
+                        - $ref: "#/components/schemas/ZodiacSign"
+                genderIdentity:
+                    allOf:
+                        - $ref: "#/components/schemas/GenderIdentity"
+                # onfidoApplicantId:
+                #     type: string
+        UserSignupInfo:
+            type: object
+            required:
+                - email
+                - password
+                - username
+            properties:
+                password:
+                    $ref: "#/components/schemas/Password"
+                email:
+                    type: string
+                username:
+                    type: string
+                profilePicture:
+                    type: string
+        SignupInfo:
+            allOf:
+                - $ref: "#/components/schemas/UserSignupInfo"
+                - type: object
+                  properties:
+                      artistSignupInfo:
+                          $ref: "#/components/schemas/ArtistSignupInfo"
+        ManagerLevelLabel:
+            type: string
+            enum:
+                - MANAGEMENT
+                - INDEPENDENT_LABEL
+                - LABEL
+                - MAJOR
+        ManagerLevel:
+            type: object
+            required:
+                - level
+                - label
+            properties:
+                level:
+                    type: integer
+                    minimum: 0
+                label:
+                    $ref: "#/components/schemas/ManagerLevelLabel"
+        ProfileCollectionInfo:
+            type: object
+            required:
+                - nCards
+                - totalCards
+            properties:
+                nCards:
+                    type: integer
+                    minimum: 0
+                totalCards:
+                    type: integer
+                    minimum: 0
+        PublicUserInfo:
+            type: object
+            required:
+                - id
+                - username
+                - registrationDate
+                - managerLevel
+                - isArtist
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                username:
+                    type: string
+                profilePicture:
+                    type: string
+                registrationDate:
+                    $ref: "#/components/schemas/Timestamp"
+                managerLevel:
+                    $ref: "#/components/schemas/ManagerLevel"
+                isArtist:
+                    type: boolean
+                profileCollectionInfo:
+                    $ref: "#/components/schemas/ProfileCollectionInfo"
+        UpdateUserInfo:
+            type: object
+            properties:
+                username:
+                    type: string
+                profilePicture:
+                    type: string
+                userRole:
+                    $ref: "#/components/schemas/UserRole"
+                artistHeadshot:
+                    type: string
+        UserInfo:
+            allOf:
+                - $ref: "#/components/schemas/PublicUserInfo"
+                - type: object
+                  required:
+                      - email
+                      - managerXP
+                      - userRole
+                      - nPlayedCompetitions
+                      - referralCode
+                  properties:
+                      email:
+                          type: string
+                          format: email
+                      managerXP:
+                          type: integer
+                          minimum: 0
+                      userRole:
+                          $ref: "#/components/schemas/UserRole"
+                      artistHeadshot:
+                          type: string
+                      nPlayedCompetitions:
+                          type: integer
+                          minimum: 0
+                      referralCode:
+                          type: string
+                      friendReferralCode:
+                          type: string
+        UpdateProfileInfo:
+            type: object
+            properties:
+                username:
+                    type: string
+                profilePicture:
+                    type: string
+                friendReferralCode:
+                    type: string
+        UserSignupConfirmation:
+            required:
+                - email
+                - otp
+            type: object
+            properties:
+                email:
+                    type: string
+                otp:
+                    type: string
+        UserPasswordReset:
+            type: object
+            required:
+                - email
+                - otp
+                - newPassword
+            properties:
+                email:
+                    type: string
+                otp:
+                    type: string
+                newPassword:
+                    $ref: "#/components/schemas/Password"
+        UserOverview:
+            type: object
+            required:
+                - id
+                - username
+                - managerLevel
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+                profilePicture:
+                    type: string
+                managerLevel:
+                    $ref: "#/components/schemas/ManagerLevel"
+        ArtistOverview:
+            type: object
+            required:
+                - name
+                - artistHeadshot
+            properties:
+                name:
+                    type: string
+                artistHeadshot:
+                    type: string
+        PaginatedUsers:
+            type: object
+            required:
+                - items
+                - total
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/UserInfo"
+                total:
+                    type: integer
+                    minimum: 0
+        ProfilePropertyAvailability:
+            type: object
+            required:
+                - available
+            properties:
+                available:
+                    type: boolean
+        # Cards
+        CardArtist:
+            type: object
+            required:
+                - id
+                - name
+                - images
+                - genre
+                - genderIdentity
+                - birthRegion
+                - zodiacSign
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                images:
+                    $ref: "#/components/schemas/ArtistImages"
+                genre:
+                    $ref: "#/components/schemas/Genre"
+                genderIdentity:
+                    $ref: "#/components/schemas/GenderIdentity"
+                birthRegion:
+                    $ref: "#/components/schemas/BirthRegion"
+                zodiacSign:
+                    $ref: "#/components/schemas/ZodiacSign"
+                specialSkill:
+                    $ref: "#/components/schemas/SpecialSkillType"
+        ArtistRarities:
+            type: object
+            required:
+                - artistId
+                - name
+                - rarities
+            properties:
+                artistId:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                rarities:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CardRarity"
+        CardAttributes:
+            type: object
+            required:
+                - exp
+                - fan
+            properties:
+                exp:
+                    type: number
+                    minimum: 0
+                    maximum: 100
+                fan:
+                    type: number
+                    minimum: 0
+                    maximum: 100
+        CardRarity:
+            type: string
+            enum:
+                - COMMON
+                - GOLD
+                - PLATINUM
+                - DIAMOND
+                - UNIQUE
+        CardCopiesNumbers:
+            type: object
+            required:
+                - cardNumber
+            properties:
+                cardNumber:
+                    type: integer
+                    minimum: 0
+                maxCopies:
+                    type: integer
+                    minimum: 0
+                    description: |
+                        The maximum number of copies ever created for this card.
+                        This only exists for DIAMOND and UNIQUE cards.
+        Genre:
+            type: string
+            enum:
+                - ROCK
+                - POP
+                - URBAN
+                - ELECTRONIC
+                - REGGAETON
+                - REGGAE
+                - REB
+                - JAZZ
+                - CLASSICAL
+        ZodiacSign:
+            type: string
+            enum:
+                - ARIES
+                - TAURUS
+                - GEMINI
+                - CANCER
+                - LEO
+                - VIRGO
+                - LIBRA
+                - SCORPIO
+                - SAGITTARIUS
+                - CAPRICORN
+                - AQUARIUS
+                - PISCES
+        GenderIdentity:
+            type: string
+            enum:
+                - MALE
+                - FEMALE
+                - OTHER
+                - NON_BINARY
+        BirthRegion:
+            type: string
+            enum:
+                - ABRUZZO
+                - BASILICATA
+                - CALABRIA
+                - CAMPANIA
+                - EMILIA_ROMAGNA
+                - FRIULI_VENEZIA_GIULIA
+                - LAZIO
+                - LIGURIA
+                - LOMBARDIA
+                - MARCHE
+                - MOLISE
+                - PIEMONTE
+                - PUGLIA
+                - SARDEGNA
+                - SICILIA
+                - TOSCANA
+                - TRENTINO_ALTO_ADIGE
+                - UMBRIA
+                - VALLE_DAOSTA
+                - VENETO
+        ZodiacSignCompetitionRequirement:
+            type: string
+            enum:
+                - AIR_SIGNS
+                - WATER_SIGNS
+                - FIRE_SIGNS
+                - EARTH_SIGNS
+        BirthRegionCompetitionRequirement:
+            type: string
+            enum:
+                - NORTHERN_ITALY
+                - CENTRAL_ITALY
+                - SOUTHERN_ITALY
+                - ISLANDS
+        CardStatus:
+            type: string
+            enum:
+                - OWNED
+                - IN_BAND
+        CardInstanceInfo:
+            type: object
+            required:
+                - owner
+                - copies
+                - status
+                - level
+                - equipments
+            properties:
+                owner:
+                    $ref: "#/components/schemas/UserOverview"
+                copies:
+                    $ref: "#/components/schemas/CardCopiesNumbers"
+                status:
+                    $ref: "#/components/schemas/CardStatus"
+                level:
+                    type: integer
+                    minimum: 0
+                    maximum: 4
+                equipments:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Equipment"
+        CardOverview:
+            type: object
+            required:
+                - id
+                - artistName
+                - rarity
+                - images
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                artistName:
+                    type: string
+                rarity:
+                    $ref: "#/components/schemas/CardRarity"
+                images:
+                    $ref: "#/components/schemas/ArtistImages"
+        Card:
+            type: object
+            required:
+                - id
+                - artist
+                - rarity
+                - attributes
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                artist:
+                    $ref: "#/components/schemas/CardArtist"
+                rarity:
+                    $ref: "#/components/schemas/CardRarity"
+                attributes:
+                    $ref: "#/components/schemas/CardAttributes"
+        CardInstance:
+            allOf:
+                - $ref: "#/components/schemas/Card"
+                - type: object
+                  required:
+                      - instanceInfo
+                  properties:
+                      instanceInfo:
+                          $ref: "#/components/schemas/CardInstanceInfo"
+        ArtistsRarities:
+            type: array
+            items:
+                $ref: "#/components/schemas/ArtistRarities"
+        PaginatedArtistsRarities:
+            type: object
+            required:
+                - items
+                - total
+            properties:
+                items:
+                    $ref: "#/components/schemas/ArtistsRarities"
+                total:
+                    type: integer
+                    minimum: 0
+        MaxArtistRarity:
+            type: object
+            required:
+                - artistId
+                - maxRarity
+            properties:
+                artistId:
+                    type: string
+                    format: uuid
+                maxRarity:
+                    $ref: "#/components/schemas/CardRarity"
+        ArtistImages:
+            type: object
+            required:
+                - common
+                - gold
+                - platinum
+                - overview
+                - artistSelection
+            properties:
+                common:
+                    type: string
+                gold:
+                    type: string
+                platinum:
+                    type: string
+                overview:
+                    type: string
+                artistSelection:
+                    type: string
+        SpecialSkillType:
+            type: string
+            enum:
+                - TOUCHED_FROM_ABOVE
+                - AUTOTUNE
+                - NO_AUTOTUNE
+                - KING_OF_RAP
+                - DISSING
+                - SUMMER_HIT
+                - INFLUENCER
+                - HIT
+                - SUPREME_EGO
+                - LUXURIOUS_UNBRIDLED
+                - FRUGAL_LIFESTYLE
+                - WEALTHY_LIFESTYLE
+                - ICONIC_LOOK
+                - TALENT_SCOUT
+                - NICHE_TALENT
+                - PATIENCE_LONG_CAREER
+                - CRITICISM_RESISTANCE
+                - ENTERTAINER
+                - IN_THEIR_BUBBLE
+                - SPOTIFY_MONSTER
+                - UNEXPECTED_FEATURING
+                - RAPID_GROWTH
+                - INITIAL_PEAK
+                - TRANSFORMIST
+                - MINIMALIST
+        UpdateArtist:
+            type: object
+            properties:
+                specialSkill:
+                    $ref: "#/components/schemas/SpecialSkillType"
+        # Equipment
+        EquipmentType:
+            type: string
+            enum:
+                - GOLD_NECKLACE
+                - METAL_RING
+                - HARMONY_BRACELET
+                - COMMUNICATION_MANAGER
+                - CRISIS_MANAGER
+                - FAIR_AGENT
+                - FRIENDSHIP_EARRINGS
+                - BRILLIANT_MAKEUP_ARTIST
+                - FRUGAL_OUTFIT
+                - OVER_THE_TOP_OUTFIT
+                - ALTRUISM_AMULET
+                - SHEET_MUSIC
+                - BOOST_HEADPHONES
+                - SWING_SAXOPHONE
+                - FASHIONABLE_GLASSES
+                - VINTAGE_MICROPHONE
+                - REGGAE_FLAME
+                - PERREO_BANDANA
+                - FLAMING_SKULL
+        Equipment:
+            type: object
+            required:
+                - type
+                - value
+            properties:
+                type:
+                    $ref: "#/components/schemas/EquipmentType"
+                value:
+                    type: number
+                genre:
+                    $ref: "#/components/schemas/Genre"
+                    description: The genre the equipment is associated with
+        # Vinyls
+        VinylRarity:
+            type: string
+            enum:
+                - COMMON
+                - GOLD
+                - PLATINUM
+        # Player's Resources
+        VinylResources:
+            type: object
+            required:
+                - commonVinyls
+                - goldVinyls
+                - platinumVinyls
+            properties:
+                commonVinyls:
+                    type: number
+                    minimum: 0
+                goldVinyls:
+                    type: number
+                    minimum: 0
+                platinumVinyls:
+                    type: number
+                    minimum: 0
+        PlayerVinylResources:
+            type: object
+            required:
+                - vinyls
+            properties:
+                vinyls:
+                    $ref: "#/components/schemas/VinylResources"
+        EquipmentResource:
+            type: object
+            required:
+                - equipment
+                - copies
+            properties:
+                equipment:
+                    $ref: "#/components/schemas/Equipment"
+                copies:
+                    type: integer
+                    minimum: 0
+        PlayerEquipmentResources:
+            type: object
+            required:
+                - equipment
+            properties:
+                equipment:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/EquipmentResource"
+        PlayerCardsResources:
+            type: object
+            required:
+                - cards
+            properties:
+                cards:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CardInstance"
+        PaginatedPlayerCardsResources:
+            type: object
+            required:
+                - items
+                - total
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CardInstance"
+                total:
+                    type: integer
+                    minimum: 0
+        StickerResource:
+            type: object
+            required:
+                - sticker
+                - copies
+            properties:
+                sticker:
+                    $ref: "#/components/schemas/Genre"
+                copies:
+                    type: integer
+                    minimum: 0
+        PlayerStickerResources:
+            type: object
+            required:
+                - stickers
+            properties:
+                stickers:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/StickerResource"
+        ResourceSourceType:
+            type: string
+            enum:
+                - PURCHASE
+                - GIFT
+                - COMPETITION
+                - SKYSCRAPER
+                - JUKEBOX
+                - SPECIAL_SKILL
+        ResourceType:
+            type: string
+            enum:
+                - CARD
+                - VINYL
+                - EQUIPMENT
+                - STICKER
+        ResourcePurchaseDetails:
+            type: object
+            required:
+                - price
+            properties:
+                price:
+                    $ref: "#/components/schemas/MarketplaceItemPrice"
+        ResourceHistoryEntry:
+            type: object
+            required:
+                - id
+                - timestamp
+                - sourceType
+                - resourceType
+                - resource
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                timestamp:
+                    $ref: "#/components/schemas/Timestamp"
+                sourceType:
+                    $ref: "#/components/schemas/ResourceSourceType"
+                resourceType:
+                    $ref: "#/components/schemas/ResourceType"
+                resource:
+                    oneOf:
+                        - $ref: "#/components/schemas/CardOverview"
+                        - $ref: "#/components/schemas/EquipmentType"
+                        - $ref: "#/components/schemas/VinylRarity"
+                        - $ref: "#/components/schemas/Genre" # for stickers
+                purchaseDetails:
+                    description: Only present when sourceType is PURCHASE
+                    $ref: "#/components/schemas/ResourcePurchaseDetails"
+        PaginatedResourceHistory:
+            type: object
+            required:
+                - items
+                - total
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/ResourceHistoryEntry"
+                total:
+                    type: integer
+                    minimum: 0
+        # Competitions
+        CompetitionRewardsCheckpoints:
+            type: object
+            required:
+                - minScore
+                - maxScore
+                - playerScore
+                - nextRewardScore
+            properties:
+                minScore:
+                    type: number
+                    minimum: 0
+                maxScore:
+                    type: number
+                    minimum: 0
+                playerScore:
+                    type: number
+                    minimum: 0
+                nextRewardScore:
+                    type: number
+                    minimum: 0
+        CompetitionType:
+            type: string
+            enum:
+                - SPOTIFY_POPULARITY
+                - SPOTIFY_FOLLOWERS
+                - SPOTIFY_STREAMS
+                - INSTAGRAM_FOLLOWERS
+                - INSTAGRAM_VIDEOS
+                - YOUTUBE_COMMENTS
+                - YOUTUBE_SHORTS
+                - TIKTOK_LIKES
+                - MILAN_LISTENERS
+                - ROME_LISTENERS
+                - FLORENCE_LISTENERS
+                - SPOTIFY_PERCENTAGE_STREAMS
+                - INSTAGRAM_PERCENTAGE_FOLLOWERS
+                - TIKTOK_PERCENTAGE_LIKES
+        CompetitionStatus:
+            type: string
+            enum:
+                - SCHEDULED
+                - OPEN
+                - ONGOING
+                - TERMINATED
+        NewCompetition:
+            type: object
+            required:
+                - name
+                - startDate
+                - endDate
+                - competitionType
+                - bandSize
+            properties:
+                name:
+                    type: string
+                description:
+                    type: string
+                startDate:
+                    $ref: "#/components/schemas/DateTime"
+                endDate:
+                    $ref: "#/components/schemas/DateTime"
+                competitionType:
+                    $ref: "#/components/schemas/CompetitionType"
+                rewards:
+                    $ref: "#/components/schemas/CompetitionRewards"
+                requirements:
+                    $ref: "#/components/schemas/CompetitionRequirements"
+                bandSize:
+                    type: integer
+                    minimum: 1
+        UpdateCompetition:
+            allOf:
+                - $ref: "#/components/schemas/NewCompetition"
+        Competition:
+            type: object
+            required:
+                - id
+                - name
+                - startDate
+                - endDate
+                - competitionType
+                - status
+                - nParticipants
+                - bandSize
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                description:
+                    type: string
+                startDate:
+                    $ref: "#/components/schemas/Timestamp"
+                endDate:
+                    $ref: "#/components/schemas/Timestamp"
+                competitionType:
+                    $ref: "#/components/schemas/CompetitionType"
+                rewards:
+                    $ref: "#/components/schemas/CompetitionRewards"
+                status:
+                    $ref: "#/components/schemas/CompetitionStatus"
+                nParticipants:
+                    type: integer
+                    minimum: 0
+                requirements:
+                    $ref: "#/components/schemas/CompetitionRequirements"
+                bandSize:
+                    type: integer
+                    minimum: 1
+        CompetitionDetails:
+            allOf:
+                - $ref: "#/components/schemas/Competition"
+                - type: object
+                  required:
+                      - band
+                  properties:
+                      rewardsCheckpoints:
+                          allOf:
+                              - $ref: "#/components/schemas/CompetitionRewardsCheckpoints"
+                              - description: This will be visible only during the competition.
+                      band:
+                          $ref: "#/components/schemas/CompetitionBand"
+        CompetitionArtistScore:
+            type: object
+            required:
+                - competitionParameter
+                - rarity
+                - equipments
+                - specialSkill
+                - frontman
+                - totalScore
+            properties:
+                competitionParameter:
+                    $ref: "#/components/schemas/CompetitionParameterScore"
+                rarity:
+                    $ref: "#/components/schemas/RarityScore"
+                equipments:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CompetitionArtistEquipmentScore"
+                frontman:
+                    type: number
+                specialSkill:
+                    $ref: "#/components/schemas/SpecialSkillScore"
+                totalScore:
+                    type: number
+        CompetitionParameterScore:
+            type: object
+            required:
+                - competitionType
+                - score
+                - value
+            properties:
+                competitionType:
+                    $ref: "#/components/schemas/CompetitionType"
+                score:
+                    type: number
+                value:
+                    type: number
+        RarityScore:
+            type: object
+            required:
+                - cardRarity
+                - score
+            properties:
+                cardRarity:
+                    $ref: "#/components/schemas/CardRarity"
+                score:
+                    type: number
+        SpecialSkillScore:
+            type: object
+            required:
+                - specialSkill
+                - score
+            properties:
+                specialSkill:
+                    $ref: "#/components/schemas/SpecialSkillType"
+                score:
+                    type: number
+        CompetitionArtistEquipmentScore:
+            type: object
+            required:
+                - equipment
+                - score
+            properties:
+                equipment:
+                    $ref: "#/components/schemas/EquipmentType"
+                score:
+                    type: number
+                artist:
+                    $ref: "#/components/schemas/CardInBand"
+                    description: "The equipment is equipped by another artist (if specified)"
+        UserInLeaderboard:
+            type: object
+            required:
+                - user
+                - score
+                - rank
+                - nArtists
+                - collectionValue
+            properties:
+                user:
+                    $ref: "#/components/schemas/UserOverview"
+                score:
+                    type: number
+                    minimum: 0
+                rank:
+                    type: integer
+                    minimum: 1
+                nArtists:
+                    type: number
+                    minimum: 0
+                collectionValue:
+                    type: number
+                    minimum: 0
+        ArtistInLeaderboard:
+            type: object
+            required:
+                - artist
+                - score
+                - rank
+            properties:
+                artist:
+                    $ref: "#/components/schemas/ArtistOverview"
+                score:
+                    type: number
+                    minimum: 0
+                rank:
+                    type: integer
+                    minimum: 1
+        PaginatedArtistLeaderboard:
+            type: object
+            required:
+                - items
+                - total
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/ArtistInLeaderboard"
+                total:
+                    type: integer
+                    minimum: 0
+        PaginatedUserLeaderboard:
+            type: object
+            required:
+                - items
+                - total
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/UserInLeaderboard"
+                total:
+                    type: integer
+                    minimum: 0
+        CompetitionFanRequirements:
+            type: object
+            required:
+                - minFan
+                - maxFan
+            properties:
+                minFan:
+                    type: number
+                    minimum: 1
+                maxFan:
+                    type: number
+                    maximum: 100
+        CompetitionExpRequirements:
+            type: object
+            required:
+                - minExp
+                - maxExp
+            properties:
+                minExp:
+                    type: number
+                    minimum: 1
+                maxExp:
+                    type: number
+                    maximum: 100
+        CompetitionRequirements:
+            type: object
+            properties:
+                fanRequirements:
+                    $ref: "#/components/schemas/CompetitionFanRequirements"
+                expRequirements:
+                    $ref: "#/components/schemas/CompetitionExpRequirements"
+                genreRequirements:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Genre"
+                genderIdentityRequirements:
+                    $ref: "#/components/schemas/GenderIdentity"
+                zodiacSignRequirement:
+                    $ref: "#/components/schemas/ZodiacSignCompetitionRequirement"
+                birthRegionRequirement:
+                    $ref: "#/components/schemas/BirthRegionCompetitionRequirement"
+        GenericCardReward:
+            type: object
+            required:
+                - rarity
+                - copies
+            properties:
+                rarity:
+                    $ref: "#/components/schemas/CardRarity"
+                copies:
+                    type: integer
+                    minimum: 0
+        GenericCardRewards:
+            type: array
+            items:
+                $ref: "#/components/schemas/GenericCardReward"
+        SpecificCardRewards:
+            type: object
+            required:
+                - artistId
+                - rarity
+                - copies
+            properties:
+                artistId:
+                    type: string
+                    format: uuid
+                rarity:
+                    $ref: "#/components/schemas/CardRarity"
+                copies:
+                    type: integer
+                    minimum: 0
+        EquipmentReward:
+            type: object
+            required:
+                - equipmentType
+                - copies
+            properties:
+                equipmentType:
+                    $ref: "#/components/schemas/EquipmentType"
+                copies:
+                    type: integer
+                    minimum: 0
+        CompetitionReward:
+            type: object
+            required:
+                - rankThreshold
+            properties:
+                genericCards:
+                    $ref: "#/components/schemas/GenericCardRewards"
+                specificCards:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/SpecificCardRewards"
+                equipment:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/EquipmentReward"
+                vinyls:
+                    $ref: "#/components/schemas/VinylResources"
+                cubble:
+                    type: number
+                    minimum: 0
+                stickersAmount:
+                    type: number
+                    minimum: 0
+                rankThreshold:
+                    type: integer
+                    minimum: 1
+                    maximum: 100
+                    description: |
+                        The rank threshold, as a percentage, to obtain the reward.
+                        The rank is calculated based on the score.
+        CompetitionRewards:
+            type: array
+            items:
+                $ref: "#/components/schemas/CompetitionReward"
+        GenericClaimedRewards:
+            type: object
+            properties:
+                cards:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CardInstance"
+                equipment:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/EquipmentResource"
+                vinyls:
+                    $ref: "#/components/schemas/VinylResources"
+                cubble:
+                    type: number
+                    minimum: 0
+                stickers:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/StickerResource"
+        ClaimedCompetitionRewards:
+            allOf:
+                - $ref: "#/components/schemas/GenericClaimedRewards"
+                - type: object
+                  properties:
+                      xp:
+                          type: number
+                          minimum: 0
+        PaginatedCompetition:
+            allOf:
+                - $ref: "#/components/schemas/Competition"
+                - type: object
+                  required:
+                      - isPartecipating
+                  properties:
+                      isPartecipating:
+                          type: boolean
+                      rewardsClaimed:
+                          type: boolean
+                          description: Available only for terminated competitions
+        PaginatedCompetitions:
+            type: object
+            required:
+                - items
+                - total
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/PaginatedCompetition"
+                total:
+                    type: integer
+                    minimum: 0
+        CompetitionBandIds:
+            type: object
+            required:
+                - cards
+                - frontmanId
+            properties:
+                cards:
+                    type: array
+                    items:
+                        type: string
+                        description: The card IDs of the band members. A band is composed of 5 members.
+                frontmanId:
+                    type: string
+                    format: uuid
+                    description: The user ID of the frontman. It must be included in the cards list.
+        CardInBand:
+            allOf:
+                - $ref: "#/components/schemas/CardInstance"
+                - type: object
+                  required:
+                      - isFrontman
+                      - score
+
+                  properties:
+                      isFrontman:
+                          type: boolean
+                      score:
+                          type: number
+                          minimum: 0
+        CompetitionBand:
+            type: array
+            items:
+                $ref: "#/components/schemas/CardInBand"
+        # Payments
+        Amount:
+            type: integer
+            description: The amount expressed in the smallest unit of the currency
+            minimum: 0
+        StripePayment:
+            type: object
+            required:
+                - paymentIntentId
+            properties:
+                paymentIntentId:
+                    type: string
+                clientSecret:
+                    type: string
+                customerId:
+                    type: string
+                paymentStatus:
+                    type: string
+        NewPayment:
+            type: object
+            required:
+                - amount
+            properties:
+                amount:
+                    $ref: "#/components/schemas/Amount"
+                paymentMethodId:
+                    type: string
+                savePaymentMethod:
+                    type: boolean
+                    default: false
+        # Payment Methods
+        PaymentMethodType:
+            type: string
+            enum:
+                - CARD
+        NewPaymentMethod:
+            type: object
+            required:
+                - type
+            properties:
+                type:
+                    $ref: "#/components/schemas/PaymentMethodType"
+                card:
+                    $ref: "#/components/schemas/NewCardPaymentMethod"
+        NewCardPaymentMethod:
+            type: object
+            required:
+                - token
+            properties:
+                token:
+                    type: string
+                    description: |
+                        The token representing the card generated
+                        by Stripe.
+        PaymentMethod:
+            type: object
+            required:
+                - id
+                - type
+            properties:
+                id:
+                    type: string
+                type:
+                    $ref: "#/components/schemas/PaymentMethodType"
+                stripePm:
+                    $ref: "#/components/schemas/StripePaymentMethod"
+        StripePaymentMethod:
+            type: object
+            additionalProperties: true
+            description: |
+                Stripe payment method object, refer to the
+                official documentation: 
+                https://stripe.com/docs/api/payment_methods/object
+
+        # Wallet
+        CubblePurchaseInfo:
+            type: object
+            required:
+                - euroAmount
+            properties:
+                euroAmount:
+                    $ref: "#/components/schemas/Amount"
+        WalletTransaction:
+            type: object
+            required:
+                - id
+                - amount
+                - createdAt
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                amount:
+                    type: number
+                createdAt:
+                    $ref: "#/components/schemas/Timestamp"
+                info:
+                    $ref: "#/components/schemas/CubblePurchaseInfo"
+        PaginatedWalletTransactions:
+            type: object
+            required:
+                - items
+                - total
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/WalletTransaction"
+                total:
+                    type: integer
+                    minimum: 0
+        Wallet:
+            type: object
+            required:
+                - transactions
+                - cubbleBalance
+            properties:
+                transactions:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/WalletTransaction"
+                cubbleBalance:
+                    type: number
+        NewCubblePurchase:
+            type: object
+            required:
+                - payment
+            properties:
+                payment:
+                    $ref: "#/components/schemas/NewPayment"
+        StickerPurchase:
+            type: object
+            required:
+                - quantity
+            properties:
+                quantity:
+                    type: number
+                    minimum: 1
+        CubblePurchase:
+            type: object
+            required:
+                - stripePayment
+            properties:
+                stripePayment:
+                    $ref: "#/components/schemas/StripePayment"
+
+        # Marketplace
+        MarketplaceItemPrice:
+            type: integer
+            minimum: 1
+        MarketplaceRaritiesCount:
+            type: object
+            required:
+                - common
+                - gold
+                - platinum
+                - diamond
+                - unique
+            properties:
+                common:
+                    type: integer
+                    minimum: 0
+                gold:
+                    type: integer
+                    minimum: 0
+                platinum:
+                    type: integer
+                    minimum: 0
+                diamond:
+                    type: integer
+                    minimum: 0
+                unique:
+                    type: integer
+                    minimum: 0
+        EquipmentWithPrice:
+            allOf:
+                - $ref: "#/components/schemas/Equipment"
+                - type: object
+                  required:
+                      - price
+                  properties:
+                      price:
+                          $ref: "#/components/schemas/MarketplaceItemPrice"
+        MarketplaceEquipment:
+            type: object
+            required:
+                - equipment
+            properties:
+                equipment:
+                    type: array
+                    items:
+                        allOf:
+                            - $ref: "#/components/schemas/EquipmentWithPrice"
+        VinylWithPrice:
+            type: object
+            required:
+                - rarity
+                - price
+            properties:
+                rarity:
+                    $ref: "#/components/schemas/VinylRarity"
+                price:
+                    $ref: "#/components/schemas/MarketplaceItemPrice"
+        MarketplaceVinyls:
+            type: object
+            required:
+                - vinyls
+            properties:
+                vinyls:
+                    type: array
+                    items:
+                        allOf:
+                            - $ref: "#/components/schemas/VinylWithPrice"
+        StickerWithPrice:
+            type: object
+            required:
+                - genre
+                - price
+            properties:
+                genre:
+                    $ref: "#/components/schemas/Genre"
+                price:
+                    $ref: "#/components/schemas/MarketplaceItemPrice"
+        MarketplaceStickers:
+            type: object
+            required:
+                - stickers
+            properties:
+                stickers:
+                    type: array
+                    items:
+                        allOf:
+                            - $ref: "#/components/schemas/StickerWithPrice"
+        BubbleCardSale:
+            type: object
+            required:
+                - id
+                - card
+                - price
+                - isCardOwned
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                card:
+                    $ref: "#/components/schemas/Card"
+                price:
+                    $ref: "#/components/schemas/MarketplaceItemPrice"
+                isCardOwned:
+                    type: boolean
+        PaginatedBubbleCardSales:
+            type: object
+            required:
+                - items
+                - total
+                - raritiesCount
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/BubbleCardSale"
+                total:
+                    type: integer
+                    minimum: 0
+                raritiesCount:
+                    $ref: "#/components/schemas/MarketplaceRaritiesCount"
+
+        # CardSaleStatus:
+        #     type: string
+        #     enum:
+        #         - AVAILABLE
+        #         - SOLD
+        # NewMarketplaceCardSale:
+        #     type: object
+        #     required:
+        #         - cardId
+        #         - price
+        #     properties:
+        #         cardId:
+        #             type: string
+        #             format: uuid
+        #         price:
+        #             $ref: "#/components/schemas/CardPrice"
+        # UpdateMarketplaceCardSale:
+        #     type: object
+        #     description: |
+        #         The price or the status of a card sale can be updated.
+        #         The status can be updated only from AVAILABLE to SOLD, by the buyer.
+        #         The price can be updated only by the seller.
+        #     properties:
+        #         price:
+        #             $ref: "#/components/schemas/CardPrice"
+        #         status:
+        #             $ref: "#/components/schemas/CardSaleStatus"
+        # MarketplaceCardSale:
+        #     allOf:
+        #         - $ref: "#/components/schemas/CardInstance"
+        #         - type: object
+        #           required:
+        #               - price
+        #               - saleDate
+        #               - isFavorite
+        #           properties:
+        #               price:
+        #                   type: number
+        #                   minimum: 1
+        #               saleDate:
+        #                   $ref: "#/components/schemas/Timestamp"
+        #               isFavorite:
+        #                   type: boolean
+        # PaginatedMarketplaceCardSales:
+        #     type: object
+        #     required:
+        #         - items
+        #         - total
+        #         - raritiesCount
+        #     properties:
+        #         items:
+        #             type: array
+        #             items:
+        #                 $ref: "#/components/schemas/MarketplaceCardSale"
+        #         total:
+        #             type: integer
+        #             minimum: 0
+        #         raritiesCount:
+        #             $ref: "#/components/schemas/MarketplaceRaritiesCount"
+        # PaginatedMarketplaceFavorites:
+        #     type: object
+        #     required:
+        #         - items
+        #         - total
+        #     properties:
+        #         items:
+        #             type: array
+        #             items:
+        #                 $ref: "#/components/schemas/MarketplaceCardSale"
+        #         total:
+        #             type: integer
+        #             minimum: 0
+
+        # Gifts
+        GenericGiftCardsResources:
+            $ref: "#/components/schemas/GenericCardRewards"
+        SpecificGiftCard:
+            type: object
+            required:
+                - artistId
+                - rarity
+                - copies
+            properties:
+                artistId:
+                    type: string
+                    format: uuid
+                rarity:
+                    $ref: "#/components/schemas/CardRarity"
+                copies:
+                    type: integer
+                    minimum: 0
+        EquipmentGift:
+            type: array
+            items:
+                type: object
+                required:
+                    - equipmentType
+                    - copies
+                properties:
+                    equipmentType:
+                        $ref: "#/components/schemas/EquipmentType"
+                    copies:
+                        type: integer
+                        minimum: 0
+        GiftResources:
+            type: object
+            properties:
+                genericCards:
+                    $ref: "#/components/schemas/GenericGiftCardsResources"
+                specificCards:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/SpecificGiftCard"
+                equipment:
+                    $ref: "#/components/schemas/EquipmentGift"
+                vinyls:
+                    $ref: "#/components/schemas/VinylResources"
+                cubble:
+                    type: number
+                    minimum: 0
+        NewGift:
+            type: object
+            required:
+                - receivers
+                - resources
+            properties:
+                receivers:
+                    type: array
+                    items:
+                        type: string
+                        format: uuid
+                        description: The user IDs of the receivers
+                resources:
+                    $ref: "#/components/schemas/GiftResources"
+
+        # Jukebox
+        JukeboxSpin:
+            type: object
+            required:
+                - vinylRarity
+            properties:
+                vinylRarity:
+                    $ref: "#/components/schemas/VinylRarity"
+
+        # Skyscraper
+        SkyscraperReward:
+            type: object
+            required:
+                - id
+                - level
+                - rewards
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                level:
+                    type: integer
+                    minimum: 1
+                rewards:
+                    type: object
+                    $ref: "#/components/schemas/SkyscraperRewardDetail"
+                isClaimable:
+                    type: boolean
+        NewSkyscraperReward:
+            type: object
+            required:
+                - level
+                - rewards
+            properties:
+                level:
+                    type: integer
+                    minimum: 1
+                rewards:
+                    type: object
+                    $ref: "#/components/schemas/SkyscraperRewardDetail"
+        UpdateSkyscraperReward:
+            allOf:
+                - $ref: "#/components/schemas/NewSkyscraperReward"
+        SkyscraperRewardDetail:
+            type: object
+            properties:
+                genericCards:
+                    $ref: "#/components/schemas/GenericCardRewards"
+                equipment:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/EquipmentReward"
+                vinyls:
+                    $ref: "#/components/schemas/VinylResources"
+                cubble:
+                    type: number
+                    minimum: 0
+                stickersAmount:
+                    type: number
+                    minimum: 0
+        ClaimedSkyscraperReward:
+            allOf:
+                - $ref: "#/components/schemas/GenericClaimedRewards"
+
+        # Rewards
+        DailyReward:
+            type: object
+            required:
+                - hasClaimableReward
+            properties:
+                hasClaimableReward:
+                    type: boolean
+                card:
+                    $ref: "#/components/schemas/Card"
+
+        # Support Tickets
+        SupportTicketType:
+            type: string
+            enum:
+                - TECHNICAL
+                - ACCOUNT
+                - BILLING
+                - BUG
+                - FEATURE_REQUEST
+                - OTHER
+        SupportTicketStatus:
+            type: string
+            enum:
+                - OPEN
+                - RESOLVED
+                - REJECTED
+        NewSupportTicket:
+            type: object
+            required:
+                - type
+                - message
+            properties:
+                type:
+                    $ref: "#/components/schemas/SupportTicketType"
+                message:
+                    type: string
+        SupportTicket:
+            allOf:
+                - $ref: "#/components/schemas/NewSupportTicket"
+                - type: object
+                  required:
+                      - id
+                      - userEmail
+                      - timestamp
+                      - status
+                  properties:
+                      id:
+                          type: string
+                          format: uuid
+                      userEmail:
+                          type: string
+                          format: email
+                      timestamp:
+                          $ref: "#/components/schemas/Timestamp"
+                      status:
+                          $ref: "#/components/schemas/SupportTicketStatus"
+        PaginatedSupportTickets:
+            type: object
+            required:
+                - items
+                - total
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/SupportTicket"
+                total:
+                    type: integer
+                    minimum: 0
+        UpdateSupportTicket:
+            type: object
+            required:
+                - status
+            properties:
+                status:
+                    $ref: "#/components/schemas/SupportTicketStatus"
+
+        # In-app notifications
+        NotificationType:
+            type: string
+            enum:
+                - NEW_SCHEDULED_COMPETITION
+                - RESOURCES_RECEIVED
+                - COMPETITION_STARTED
+                - COMPETITION_ENDED
+                - LEVEL_UP
+        Notification:
+            type: object
+            required:
+                - id
+                - type
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                type:
+                    $ref: "#/components/schemas/NotificationType"
+        # NotificationData:
+        #     type: object
+        #     description: |
+        #         The data associated to a notification type.
+
+        #         The data structure depends on the notification type.
+
+        #         It is a map with NotificationType as key.
+        #     properties:
+        #         CARD_SOLD:
+        #             type: object
+        #             required:
+        #                 - cardId
+        #                 - saleId
+        #             properties:
+        #                 cardId:
+        #                     type: string
+        #                     format: uuid
+        #                 saleId:
+        #                     type: string
+        #                     format: uuid
+
+        # Onfido
+        # OnfidoApplicantInfo:
+        #     type: object
+        #     required:
+        #         - firstName
+        #         - lastName
+        #     properties:
+        #         firstName:
+        #             type: string
+        #         lastName:
+        #             type: string
+        # OnfidoApplicantId:
+        #     type: object
+        #     required:
+        #         - applicantId
+        #     properties:
+        #         applicantId:
+        #             type: string
+        # OnfidoToken:
+        #     type: object
+        #     required:
+        #         - token
+        #         - applicantId
+        #     properties:
+        #         token:
+        #             type: string
+        #         applicantId:
+        #             type: string
+        # OnfidoEventPayload:
+        #     type: object
+        #     description: |
+        #         The payload of an Onfido webhook event
+        #         https://documentation.onfido.com/api/latest/#webhooks
+        #     required:
+        #         - payload
+        #     properties:
+        #         payload:
+        #             type: object
+        #             required:
+        #                 - resource_type
+        #                 - action
+        #                 - object
+        #             properties:
+        #                 resource_type:
+        #                     type: string
+        #                 action:
+        #                     type: string
+        #                 object:
+        #                     type: object
+        #                     required:
+        #                         - id
+        #                         - status
+        #                     properties:
+        #                         id:
+        #                             type: string
+        #                         status:
+        #                             type: string
+
+        # Web3
+        # NftSocialStats:
+        #     type: object
+        #     required:
+        #         - likes
+        #         - views
+        #         - owners
+        #     properties:
+        #         likes:
+        #             type: integer
+        #             minimum: 0
+        #         views:
+        #             type: integer
+        #             minimum: 0
+        #         owners:
+        #             type: integer
+        #             minimum: 0
+        # Nft:
+        #     type: object
+        #     required:
+        #         - id
+        #         - name
+        #         - description
+        #         - artistId
+        #         - contractAddress
+        #         - price
+        #         - createdAt
+        #         - updatedAt
+        #         - copies
+        #         - socialStats
+        #     properties:
+        #         id:
+        #             type: string
+        #             format: uuid
+        #         name:
+        #             type: string
+        #         description:
+        #             type: string
+        #         artistId:
+        #             type: string
+        #             format: uuid
+        #         contractAddress:
+        #             type: string
+        #         price:
+        #             type: number
+        #             minimum: 0
+        #         createdAt:
+        #             type: number
+        #             format: date-time
+        #         updatedAt:
+        #             type: number
+        #             format: date-time
+        #         copies:
+        #             type: integer
+        #             minimum: 0
+        #         socialStats:
+        #             $ref: "#/components/schemas/NftSocialStats"
+        # NftOverview:
+        #     type: object
+        #     required:
+        #         - id
+        #         - name
+        #         - artist
+        #         - price
+        #         - createdAt
+        #         - copies
+        #         - socialStats
+        #     properties:
+        #         id:
+        #             type: string
+        #             format: uuid
+        #         name:
+        #             type: string
+        #         description:
+        #             type: string
+        #         artist:
+        #             $ref: "#/components/schemas/UserOverview"
+        #         price:
+        #             type: number
+        #             minimum: 0
+        #         createdAt:
+        #             type: number
+        #             format: date-time
+        #         copies:
+        #             type: integer
+        #             minimum: 0
+        #         socialStats:
+        #             $ref: "#/components/schemas/NftSocialStats"
+        # WalletType:
+        #     type: string
+        #     enum:
+        #         - METAMASK
+        #         - WALLET_CONNECT
+        #         - VENLY
+        # Wallet:
+        #     type: object
+        #     required:
+        #         - address
+        #         - userId
+        #         - walletType
+        #         - timestamp
+        #     properties:
+        #         address:
+        #             type: string
+        #         userId:
+        #             type: string
+        #             format: uuid
+        #         walletType:
+        #             $ref: "#/components/schemas/WalletType"
+        #         timestamp:
+        #             $ref: "#/components/schemas/Timestamp"
+        # NewWallet:
+        #     type: object
+        #     required:
+        #         - walletType
+        #     properties:
+        #         address:
+        #             type: string
+        #         walletType:
+        #             $ref: "#/components/schemas/WalletType"

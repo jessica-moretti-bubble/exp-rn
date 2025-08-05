@@ -17,7 +17,7 @@ export default function JukeboxPage() {
   const [scale, setScale] = useState(1);
   const [overlayVisible, setOverlayVisible] = useState(true);
 
-  //const logout = useAuthStore((s) => s.logout);
+ // const logout = useAuthStore((s) => s.logout);
 
 
   const zoomIn = () => {
@@ -26,7 +26,7 @@ export default function JukeboxPage() {
   };
 
 
-  /*useEffect(() => {
+/*useEffect(() => {
     logout()
   },[])*/
 
