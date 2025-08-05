@@ -1,16 +1,23 @@
-import IconBook from "components/svg/icon-book";
-import { StyleSheet, TextInput, View } from "react-native";
+import { StyleSheet, TextInput, TextInputProps, View } from "react-native";
 
-export const GenericInput = () => {
+interface GenericInputProperties extends TextInputProps {
+  svg: React.ReactNode;
+}
+
+export const GenericInput = (properties: GenericInputProperties) => {
   return (
     <View style={styles.inputWrapper}>
       <TextInput
         style={styles.input}
-        placeholder="Email o username"
+        placeholder={properties.placeholder}
         placeholderTextColor="#aaa"
         autoCapitalize="none"
+        secureTextEntry={properties.secureTextEntry}
+        keyboardType={properties.keyboardType}
+        value={properties.value}  // Imposta il valore
+        onChangeText={properties.onChangeText}  // Gestisce l'aggiornamento
       />
-      <IconBook />
+      {properties.svg}
     </View>
   );
 };
@@ -20,15 +27,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: 48,
     paddingHorizontal: 12,
+    paddingVertical: 12,
     alignItems: "center",
     gap: 8,
     alignSelf: "stretch",
-
     borderRadius: 8,
     borderWidth: 2,
     borderColor: "rgba(128, 128, 128, 0.5)",
     backgroundColor: "rgba(128, 128, 128, 0.2)",
-
     overflow: "hidden",
   },
   input: {

@@ -17,6 +17,7 @@ export default function JukeboxPage() {
   const [scale, setScale] = useState(1);
   const [overlayVisible, setOverlayVisible] = useState(true);
 
+  //const logout = useAuthStore((s) => s.logout);
 
 
   const zoomIn = () => {
@@ -25,10 +26,9 @@ export default function JukeboxPage() {
   };
 
 
- /* useEffect(() => {
-    useAuthStore.persist.clearStorage();
-
-  }, [])*/
+  /*useEffect(() => {
+    logout()
+  },[])*/
 
   return (
     <ImageBackground source={background} style={styles.root} resizeMode="cover">
@@ -44,7 +44,7 @@ export default function JukeboxPage() {
       <View style={styles.innerContainer}>
         <JukeboxBackground zoomIn={zoomIn} scale={scale} />
         <JukeboxSpin scale={scale} />
-        <JukeboxVinylsSlider  scale={scale} />
+        <JukeboxVinylsSlider scale={scale} />
       </View>
     </ImageBackground>
   );
