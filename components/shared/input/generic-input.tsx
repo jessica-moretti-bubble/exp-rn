@@ -1,23 +1,84 @@
-import { StyleSheet, TextInput, TextInputProps, View } from "react-native";
+import IconCheckCircle from "components/svg/icon-check-circle";
+import IconEye from "components/svg/icon-eye";
+import IconEyeOff from "components/svg/icon-eye-off";
+import IconXCircle from "components/svg/icon-x-circle";
+import { INPUT_CONFIG } from "config/generic-input.config";
+import { InputStatus } from "model/generic-input.model";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface GenericInputProperties extends TextInputProps {
-  svg: React.ReactNode;
+  svg?: React.ReactNode;
+  error?: boolean;
+  success?: boolean;
 }
 
+const getInputStatus = (
+  props: GenericInputProperties,
+  isEmpty: boolean
+): InputStatus => {
+  if (isEmpty) return "default";
+  if (props.error) return "error";
+  if (props.success) return "success";
+  return "default";
+};
+
 export const GenericInput = (properties: GenericInputProperties) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const isPasswordField = properties.keyboardType === "visible-password";
+  const maxLength = 160;
+  const charactersLeft = maxLength - (properties.value?.length || 0);
+  const isEmpty = !properties.value?.length;
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible((prev) => !prev);
+  };
+
+  const status = getInputStatus(properties, isEmpty);
+
+  const borderColor = INPUT_CONFIG.getBorderColor(status, isFocused);
+  const textColor = INPUT_CONFIG.getTextColor(status);
+
   return (
-    <View style={styles.inputWrapper}>
+    <View style={[styles.inputWrapper, { borderColor }]}>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: textColor }]}
         placeholder={properties.placeholder}
         placeholderTextColor="#aaa"
         autoCapitalize="none"
-        secureTextEntry={properties.secureTextEntry}
+        secureTextEntry={isPasswordField && !isPasswordVisible}
         keyboardType={properties.keyboardType}
-        value={properties.value}  // Imposta il valore
-        onChangeText={properties.onChangeText}  // Gestisce l'aggiornamento
+        value={properties.value}
+        onChangeText={properties.onChangeText}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        maxLength={isPasswordField ? maxLength : undefined}
       />
-      {properties.svg}
+      {status === "default" && properties.svg}
+      {status === "error" && <IconXCircle />}
+      {status === "success" && <IconCheckCircle />}
+
+      {isPasswordField && status === "default" && (
+        <View style={styles.passwordActions}>
+          {!isEmpty && (
+            <Text style={[styles.counter, { color: textColor }]}>
+              {charactersLeft}
+            </Text>
+          )}
+          <TouchableOpacity onPress={togglePasswordVisibility}>
+            {isPasswordVisible ? <IconEye /> : <IconEyeOff />}
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -33,12 +94,19 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: "rgba(128, 128, 128, 0.5)",
     backgroundColor: "rgba(128, 128, 128, 0.2)",
     overflow: "hidden",
   },
   input: {
     flex: 1,
-    color: "#fff",
+  },
+  passwordActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  counter: {
+    fontSize: 12,
+    marginLeft: 4,
   },
 });

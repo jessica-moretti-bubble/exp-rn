@@ -2,31 +2,52 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "api/auth/auth.hooks";
 import { GenericButton } from "components/shared/button/generic-button";
 import { GenericInput } from "components/shared/input/generic-input";
-import IconBook from "components/svg/icon-book";
-import { useRouter } from 'expo-router';
+import IconUser from "components/svg/icon-user";
+import { useRouter } from "expo-router";
 import { LoginSchema } from "model/schemas/login.schema";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function LoginPage() {
-  const { control, handleSubmit } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    watch
+  } = useForm({
     resolver: zodResolver(LoginSchema),
   });
 
   const router = useRouter();
 
+  const { mutateAsync, isPending } = useLogin();
 
-  const { mutateAsync, isPending, isError, error } = useLogin();
+  const password = watch('password')
+
+  const handle = watch('handle')
 
   const handleLogin = async (data: { handle: string; password: string }) => {
-    await mutateAsync(data);
+    try {
+      await mutateAsync(data);
+    } catch (e) {
+      setError("handle", {
+        type: "manual",
+        message: "Nome utente o email errata.",
+      });
+      setError("password", {
+        type: "manual",
+        message: "Password errata.",
+      });
+    }
   };
 
   const handleRegisterPress = () => {
-    router.replace('/(tabs)/jukebox')
+    router.replace("/(tabs)/jukebox");
   };
-  
+
+
 
   return (
     <View style={styles.container}>
@@ -43,27 +64,37 @@ export default function LoginPage() {
         render={({ field }) => (
           <GenericInput
             placeholder="Inserisci la tua email o username"
-            svg={<IconBook />}
+            svg={<IconUser />}
             value={field.value || ""}
             onChangeText={field.onChange}
+            error={errors.handle && handle.length  ? true : undefined}
           />
         )}
       />
-
-      <Controller
-        control={control}
-        name="password"
-        render={({ field }) => (
-          <GenericInput
-            placeholder="Inserisci la tua password"
-            svg={<IconBook />}
-            value={field.value || ""}
-            onChangeText={field.onChange}
-            secureTextEntry
-            keyboardType="visible-password"
-          />
+      <View>
+        <Controller
+          control={control}
+          name="password"
+          render={({ field }) => (
+            <GenericInput
+              placeholder="Inserisci la tua password"
+              value={field.value || ""}
+              onChangeText={field.onChange}
+              secureTextEntry
+              keyboardType="visible-password"
+              error={errors.password && password.length ? true : undefined}
+            />
+          )}
+        />
+        {(errors.password || errors.handle) && handle.length && password.length && (
+          <View>
+            <Text style={styles.errorText}>
+              Nome dell’etichetta o email errata.
+            </Text>
+            <Text style={styles.resetText}>Password dimenticata? Recupera</Text>
+          </View>
         )}
-      />
+      </View>
 
       <GenericButton
         label="Continua"
@@ -79,11 +110,9 @@ export default function LoginPage() {
       <Text style={styles.footerText}>
         Non hai un account?
         <Text style={styles.registerText} onPress={handleRegisterPress}>
-          {" "} Registrati
+          Registrati
         </Text>
       </Text>
-
-      {isError && <Text style={styles.errorText}>Errore: {error.message}</Text>}
     </View>
   );
 }
@@ -121,7 +150,11 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     fontSize: 12,
-    marginTop: 4,
+    marginTop: 8,
+  },
+  resetText: {
+    color: "#808080",
+    fontSize: 12,
   },
   loadingText: {
     color: "blue",
