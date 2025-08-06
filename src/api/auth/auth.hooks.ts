@@ -16,7 +16,7 @@ export const useLogin = () => {
 
       setLogin({ accessToken, idToken, refreshToken, isFirstLogin });
 
-      router.replace("/(app)/jukebox");
+      router.replace("/(protected)/jukebox");
     },
   });
 };

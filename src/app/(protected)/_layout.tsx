@@ -10,7 +10,7 @@ export default function TabsLayout() {
 
   useEffect(() => {
     if (!accessToken) {
-      router.replace("/(auth)/login");
+      router.replace("/(unprotected)/login");
     }
   }, [accessToken, router]);
 

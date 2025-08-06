@@ -6,7 +6,7 @@ import "react-native-devsettings";
 export default function Index() {
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.replace("/(app)/jukebox");
+      router.replace("/(protected)/jukebox");
     }, 0);
 
     return () => clearTimeout(timeout);

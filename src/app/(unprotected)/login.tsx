@@ -44,7 +44,7 @@ export default function LoginPage() {
   };
 
   const handleRegisterPress = () => {
-    router.replace("/(app)/jukebox");
+    router.replace("/(protected)/jukebox");
   };
 
   return (
@@ -91,7 +91,7 @@ export default function LoginPage() {
               <Text style={styles.errorText}>
                 Nome dell’etichetta o email errata.
               </Text>
-              <Pressable onPress={() => router.push("/(auth)/password-reset")}>
+              <Pressable onPress={() => router.push("/(unprotected)/password-reset")}>
                 <Text style={styles.resetText}>
                   Password dimenticata? Recupera
                 </Text>
