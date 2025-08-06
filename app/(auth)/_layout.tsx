@@ -20,22 +20,32 @@ export default function AuthLayout() {
         backgroundColor="transparent"
         barStyle="light-content" 
       />
+       <AuthTopBar />
 
       <Stack
         screenOptions={{
           contentStyle: { backgroundColor: "transparent" },
+          
         }}
       >
         <Stack.Screen
           name="login"
           options={{
-            header: () => <AuthTopBar />,
+            headerShown: false,
+            
+          
           }}
         />
         <Stack.Screen
           name="signup"
           options={{
-            header: () => <AuthTopBar />,
+            headerShown: false
+          }}
+        />
+         <Stack.Screen
+          name="password-reset"
+          options={{
+            headerShown: false
           }}
         />
       </Stack>

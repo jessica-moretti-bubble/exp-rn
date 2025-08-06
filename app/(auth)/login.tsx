@@ -7,7 +7,7 @@ import { useRouter } from "expo-router";
 import { LoginSchema } from "model/schemas/login.schema";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function LoginPage() {
   const {
@@ -15,7 +15,7 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors },
     setError,
-    watch
+    watch,
   } = useForm({
     resolver: zodResolver(LoginSchema),
   });
@@ -24,9 +24,9 @@ export default function LoginPage() {
 
   const { mutateAsync, isPending } = useLogin();
 
-  const password = watch('password')
+  const password = watch("password");
 
-  const handle = watch('handle')
+  const handle = watch("handle");
 
   const handleLogin = async (data: { handle: string; password: string }) => {
     try {
@@ -47,8 +47,6 @@ export default function LoginPage() {
     router.replace("/(tabs)/jukebox");
   };
 
-
-
   return (
     <View style={styles.container}>
       <View style={styles.textGroup}>
@@ -67,7 +65,7 @@ export default function LoginPage() {
             svg={<IconUser />}
             value={field.value || ""}
             onChangeText={field.onChange}
-            error={errors.handle && handle.length  ? true : undefined}
+            error={errors.handle && handle.length ? true : undefined}
           />
         )}
       />
@@ -86,14 +84,20 @@ export default function LoginPage() {
             />
           )}
         />
-        {(errors.password || errors.handle) && handle.length && password.length && (
-          <View>
-            <Text style={styles.errorText}>
-              Nome dell’etichetta o email errata.
-            </Text>
-            <Text style={styles.resetText}>Password dimenticata? Recupera</Text>
-          </View>
-        )}
+        {(errors.password || errors.handle) &&
+          handle.length &&
+          password.length && (
+            <View>
+              <Text style={styles.errorText}>
+                Nome dell’etichetta o email errata.
+              </Text>
+              <Pressable onPress={() => router.push("/(auth)/password-reset")}>
+                <Text style={styles.resetText}>
+                  Password dimenticata? Recupera
+                </Text>
+              </Pressable>
+            </View>
+          )}
       </View>
 
       <GenericButton
@@ -108,7 +112,7 @@ export default function LoginPage() {
       />
 
       <Text style={styles.footerText}>
-        Non hai un account?
+        Non hai un account? {" "} 
         <Text style={styles.registerText} onPress={handleRegisterPress}>
           Registrati
         </Text>

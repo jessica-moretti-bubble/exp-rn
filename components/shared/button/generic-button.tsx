@@ -15,7 +15,8 @@ export type ButtonVariant =
   | "primary"
   | "primary-outline"
   | "primary-shadow"
-  | "secondary";
+  | "secondary"
+  | "natural-outline"
 
 interface ButtonProps {
   label?: string;
@@ -129,6 +130,16 @@ const getVariantStyles = (variant: ButtonVariant, disabled: boolean) => {
           color: "#BAF7CD",
         },
       };
+      case "natural-outline":
+        return {
+          button: {
+            borderColor: "#808080",
+            borderWidth: 1,
+          },
+          label: {
+            color: "#808080",
+          },
+        };
     case "primary-shadow":
       return {
         button: {
